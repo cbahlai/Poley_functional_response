@@ -78,10 +78,12 @@ summary(Cricket.F.fit)
 #model to fit in the context here is Rogers (1972) random predator equation. This takes the
 # form Ne=N0*(1-exp(a(Th*Ne-a))) for a type II. HOWEVER! This model in general has poorer
 #empirical fit than the Holling's disc equation, so we'll fit both, and let the data tell us
-#how to proceed.
+#how to proceed. Note that 1/Th is the asymptote of the curve
 
 #Whatever the model, we're trying to find the values for a, attack rate, and Th, handling time
 #so we need starting values
+
+
 a<-1
 Th<-0
 
@@ -91,5 +93,27 @@ Cricket.F.random<-nls(eggs_eaten~eggs_start*(1-exp(a*(Th*eggs_eaten-1))),
                       data=Cricket.F)
 
 summary(Cricket.F.random)
+AIC(Cricket.F.random)
 
-#create plots to illustrate
+#fit the Holling's disc equation
+
+Cricket.F.holling<-nls(eggs_eaten~eggs_start*a /(1+a*Th*eggs_start), 
+                      start=list(a=a,Th=Th),
+                      data=Cricket.F)
+
+summary(Cricket.F.holling)
+AIC(Cricket.F.holling)
+
+#and what we find here is the Random predator equation has a better fit (ie it has a smaller AIC)
+#but it doesn't produce a significant coefficient
+
+#but we'd like an estimate of the asymptote anyway, so let's use the Holling model
+
+Cricket.F.asymptote<-1/(summary(Cricket.F.holling)$coefficients[2,1])
+Cricket.F.asymptote
+Cricket.F.asymptote.se<-Cricket.F.asymptote^2*summary(Cricket.F.holling)$coefficients[2,2]
+Cricket.F.asymptote.se
+
+#create plots to illustrate fit
+
+plot(Cricket.F$eggs_start, Cricket.F$eggs_eaten)
