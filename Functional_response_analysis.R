@@ -111,6 +111,7 @@ AIC(Cricket.F.holling)
 
 Cricket.F.asymptote<-1/(summary(Cricket.F.holling)$coefficients[2,1])
 Cricket.F.asymptote
+#propagate the error
 Cricket.F.asymptote.se<-Cricket.F.asymptote^2*summary(Cricket.F.holling)$coefficients[2,2]
 Cricket.F.asymptote.se
 
