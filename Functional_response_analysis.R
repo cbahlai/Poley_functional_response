@@ -45,6 +45,7 @@ Cricket.F.fit<-nls(Pconsumed~
                    data=Cricket.F)
 
 summary(Cricket.F.fit)
+
 #this results in a non-significant value for P1. Let's refit without the 3rd order
 #polynomial
 Cricket.F.fit<-nls(Pconsumed~
@@ -59,6 +60,36 @@ Cricket.F.fit<-nls(Pconsumed~
 
 summary(Cricket.F.fit)
 
+#this analysis results in weak evidence for a type II functional response among 
+# female crickets (P<0.1)- so it's probably a type II response, but variable data-
+# we'll see more when we fit the type II equation and plot the data
+
+
+###
+# step 2- fit the functional response
+
 #fit curve of relevant type to determine consumption rate as a function of egg density
+
+# to define the functional response, we can either fit the Holling disc equation. We'll assume 
+# type II responses for now, and refit if necessary, but type II responses are generally more 
+#in lab experiments
+
+#Because the experiment allowed prey to become depleted without replacement, the appropriate
+#model to fit in the context here is Rogers (1972) random predator equation. This takes the
+# form Ne=N0*(1-exp(a(Th*Ne-a))) for a type II. HOWEVER! This model in general has poorer
+#empirical fit than the Holling's disc equation, so we'll fit both, and let the data tell us
+#how to proceed.
+
+#Whatever the model, we're trying to find the values for a, attack rate, and Th, handling time
+#so we need starting values
+a<-1
+Th<-0
+
+#fit the random predator equation
+Cricket.F.random<-nls(eggs_eaten~eggs_start*(1-exp(a*(Th*eggs_eaten-1))), 
+                      start=list(a=a,Th=Th),
+                      data=Cricket.F)
+
+summary(Cricket.F.random)
 
 #create plots to illustrate
