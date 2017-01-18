@@ -117,4 +117,24 @@ Cricket.F.asymptote.se
 
 #create plots to illustrate fit
 
-plot(Cricket.F$eggs_start, Cricket.F$eggs_eaten)
+#for each taxon, we'll want to have M and F data plotted in the same chart. This means we'll
+#need to operate on the full dataset when creating the plot. We want to do this in ggplot2
+# and we'll need to create summary data to achieve this
+
+library(plyr)
+library(ggplot2)
+#calculate mean and SEM for each treatment
+Cricket.summary<-ddply(Cricket, c("predator_sex", "eggs_start"), summarise,
+                       mean_eggs_eaten=mean(eggs_eaten), n=length(eggs_eaten),
+                       sem=sd(eggs_eaten)/sqrt(n))
+
+# The errorbars overlapped, so use position_dodge to move them horizontally
+pd <- position_dodge(3) # move them .05 to the left and right
+
+Cricket.plot<-ggplot(Cricket.summary, aes(x=eggs_start, y=mean_eggs_eaten, color=predator_sex))+
+  geom_errorbar(aes(ymin=mean_eggs_eaten-sem, ymax=mean_eggs_eaten+sem, fill=predator_sex), 
+                position=pd, color="black", width=1) +
+  geom_line(position=pd) +
+  geom_point(position=pd, size=3)
+
+Cricket.plot
