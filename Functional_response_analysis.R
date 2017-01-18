@@ -227,7 +227,11 @@ Cricket.plot<-ggplot(Cricket.summary, aes(x=eggs_start, y=mean_eggs_eaten,
 
 Cricket.plot
 
+<<<<<<< HEAD
 #save to pdf
 pdf("Cricket_fig.pdf", height=4, width=5)
 Cricket.plot
 dev.off()
+=======
+##next up ORIUS!!
+>>>>>>> a88784f35fd83e7e45af391808f947e03f492ad3
