@@ -64,6 +64,38 @@ summary(Cricket.F.fit)
 # female crickets (P<0.1)- so it's probably a type II response, but variable data-
 # we'll see more when we fit the type II equation and plot the data
 
+#let's look at cricket males
+
+
+Cricket.M.fit<-nls(Pconsumed~
+                     exp(P0+
+                           P1*eggs_start+
+                           P2*eggs_start^2+
+                           P3*eggs_start^3)/(
+                             1+exp(P0+
+                                     P1*eggs_start+
+                                     P2*eggs_start^2+
+                                     P3*eggs_start^3)), 
+                   start=list(P0=P0, P1=P1, P2=P2, P3=P3),
+                   data=Cricket.M)
+
+summary(Cricket.M.fit)
+
+#once again, a non-significant value for P1, so we'll reduce the complexity of the polynomial
+
+Cricket.M.fit<-nls(Pconsumed~
+                     exp(P0+
+                           P1*eggs_start+
+                           P2*eggs_start^2)/(
+                             1+exp(P0+
+                                     P1*eggs_start+
+                                     P2*eggs_start^2)), 
+                   start=list(P0=P0, P1=P1, P2=P2),
+                   data=Cricket.M)
+
+summary(Cricket.M.fit)
+
+#significant negative P1! We have a type II
 
 ###
 # step 2- fit the functional response
@@ -115,6 +147,38 @@ Cricket.F.asymptote
 Cricket.F.asymptote.se<-Cricket.F.asymptote^2*summary(Cricket.F.holling)$coefficients[2,2]
 Cricket.F.asymptote.se
 
+######
+#repeat this analysis with cricket males
+
+#fit the random predator equation
+Cricket.M.random<-nls(eggs_eaten~eggs_start*(1-exp(a*(Th*eggs_eaten-1))), 
+                      start=list(a=a,Th=Th),
+                      data=Cricket.M)
+
+summary(Cricket.M.random)
+AIC(Cricket.M.random)
+
+#fit the Holling's disc equation
+
+Cricket.M.holling<-nls(eggs_eaten~eggs_start*a /(1+a*Th*eggs_start), 
+                       start=list(a=a,Th=Th),
+                       data=Cricket.M)
+
+summary(Cricket.M.holling)
+AIC(Cricket.M.holling)
+
+#and what we find here is the Random predator equation has a better fit (ie it has a smaller AIC)
+#but it doesn't produce a significant coefficient
+
+#but we'd like an estimate of the asymptote anyway, so let's use the Holling model
+
+Cricket.M.asymptote<-1/(summary(Cricket.M.holling)$coefficients[2,1])
+Cricket.M.asymptote
+#propagate the error
+Cricket.M.asymptote.se<-Cricket.M.asymptote^2*summary(Cricket.M.holling)$coefficients[2,2]
+Cricket.M.asymptote.se
+
+
 #create plots to illustrate fit
 
 #for each taxon, we'll want to have M and F data plotted in the same chart. This means we'll
@@ -134,9 +198,14 @@ Cricket.summary<-ddply(Cricket, c("predator_sex", "eggs_start"), summarise,
                        sem=sd(eggs_eaten)/sqrt(n))
 
 #create objects describing functions for plotting our fits
+#females
 a<-summary(Cricket.F.holling)$coefficients[1,1]
 Th<-summary(Cricket.F.holling)$coefficients[2,1]
 Cricket.F.func.holling<-function(x)  x*a /(1+a*Th*x)
+#males
+am<-summary(Cricket.M.holling)$coefficients[1,1]
+Thm<-summary(Cricket.M.holling)$coefficients[2,1]
+Cricket.M.func.holling<-function(x)  x*am /(1+am*Thm*x)
 
 # The errorbars overlapped, so use position_dodge to move them horizontally
 pd <- position_dodge(3) # move them .05 to the left and right
@@ -146,7 +215,7 @@ Cricket.plot<-ggplot(Cricket.summary, aes(x=eggs_start, y=mean_eggs_eaten,
   scale_color_manual(values=c(female, male), name="Predator sex")+
   scale_shape_manual(values=c(16,17), name="Predator sex")+
   stat_function(fun=Cricket.F.func.holling, colour=female, size=1, linetype="dashed")+
-  #stat_function(fun=Cricket.M.func.holling, colour=male, size=1, linetype="dotted")+ #add when we've done the male analysis
+  stat_function(fun=Cricket.M.func.holling, colour=male, size=1, linetype="dotted")+ 
   geom_errorbar(aes(ymin=mean_eggs_eaten-sem, ymax=mean_eggs_eaten+sem, color=predator_sex), 
                position=pd, color="black", width=3, size=0.75, show.legend=FALSE) +
   xlim(0, 150)+ylim(0,110)+
