@@ -6,7 +6,7 @@ Orius<-read.csv(file="../Orius.csv", header=T)
 Grasshopper<-read.csv(file="../Grasshopper.csv", header=T)
 Katydid<-read.csv(file="../Katydid.csv", header=T)
 
-#create subsets as necessary for each species- by sex? 
+#create subsets as necessary for each species- by sex 
 Cricket.F<-Cricket[which(Cricket$predator_sex=="Female"),]
 Cricket.M<-Cricket[which(Cricket$predator_sex=="Male"),]
 
@@ -16,7 +16,7 @@ Cricket.M<-Cricket[which(Cricket$predator_sex=="Male"),]
 
 #step 1- find out the fit
 
-# fit to Juilano 2001 model to determine type of functional response for each species
+# fit to Juilano 2001 model to determine type of functional response for each species (by sex)
 # juliano created an nth order logistic equation to model the relationship between the number
 # of prey consumed and the initial prey density. It should be sufficient to take this model 
 # just to cubic form, and if the fit is poor from there, reduce the order.
