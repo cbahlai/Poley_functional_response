@@ -123,18 +123,36 @@ Cricket.F.asymptote.se
 
 library(plyr)
 library(ggplot2)
+
+#choose colors for each sex
+female<-"green"
+male<-"orange"
+
 #calculate mean and SEM for each treatment
 Cricket.summary<-ddply(Cricket, c("predator_sex", "eggs_start"), summarise,
                        mean_eggs_eaten=mean(eggs_eaten), n=length(eggs_eaten),
                        sem=sd(eggs_eaten)/sqrt(n))
 
+#create objects describing functions for plotting our fits
+a<-summary(Cricket.F.holling)$coefficients[1,1]
+Th<-summary(Cricket.F.holling)$coefficients[2,1]
+Cricket.F.func.holling<-function(x)  x*a /(1+a*Th*x)
+
 # The errorbars overlapped, so use position_dodge to move them horizontally
 pd <- position_dodge(3) # move them .05 to the left and right
 
-Cricket.plot<-ggplot(Cricket.summary, aes(x=eggs_start, y=mean_eggs_eaten, color=predator_sex))+
-  geom_errorbar(aes(ymin=mean_eggs_eaten-sem, ymax=mean_eggs_eaten+sem, fill=predator_sex), 
-                position=pd, color="black", width=1) +
-  geom_line(position=pd) +
-  geom_point(position=pd, size=3)
+Cricket.plot<-ggplot(Cricket.summary, aes(x=eggs_start, y=mean_eggs_eaten, 
+                                          color=predator_sex, shape=predator_sex))+
+  scale_color_manual(values=c(female, male), name="Predator sex")+
+  scale_shape_manual(values=c(16,17), name="Predator sex")+
+  stat_function(fun=Cricket.F.func.holling, colour=female, size=1)+
+  #stat_function(fun=Cricket.M.func.holling, colour=male, size=1)+ #add when we've done the male analysis
+  geom_errorbar(aes(ymin=mean_eggs_eaten-sem, ymax=mean_eggs_eaten+sem, color=predator_sex), 
+               position=pd, color="black", width=3, size=0.75, show.legend=FALSE) +
+  xlim(0, 150)+ylim(0,110)+
+  xlab("Starting egg density")+ylab("Eggs eaten")+
+  geom_point(position=pd, size=5, show.legend=TRUE)+
+  theme_bw()+ theme(legend.key=element_rect(colour=NA))
+  
 
 Cricket.plot
