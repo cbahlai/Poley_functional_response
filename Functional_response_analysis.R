@@ -145,8 +145,8 @@ Cricket.plot<-ggplot(Cricket.summary, aes(x=eggs_start, y=mean_eggs_eaten,
                                           color=predator_sex, shape=predator_sex))+
   scale_color_manual(values=c(female, male), name="Predator sex")+
   scale_shape_manual(values=c(16,17), name="Predator sex")+
-  stat_function(fun=Cricket.F.func.holling, colour=female, size=1)+
-  #stat_function(fun=Cricket.M.func.holling, colour=male, size=1)+ #add when we've done the male analysis
+  stat_function(fun=Cricket.F.func.holling, colour=female, size=1, linetype="dashed")+
+  #stat_function(fun=Cricket.M.func.holling, colour=male, size=1, linetype="dotted")+ #add when we've done the male analysis
   geom_errorbar(aes(ymin=mean_eggs_eaten-sem, ymax=mean_eggs_eaten+sem, color=predator_sex), 
                position=pd, color="black", width=3, size=0.75, show.legend=FALSE) +
   xlim(0, 150)+ylim(0,110)+
