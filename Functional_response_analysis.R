@@ -189,8 +189,9 @@ library(plyr)
 library(ggplot2)
 
 #choose colors for each sex
-female<-"green"
-male<-"orange"
+# colors from a qualitative pallate from colorbrewer.org, chosen for colorblind friendliness
+female<-"#d95f02"
+male<-"#7570b3"
 
 #calculate mean and SEM for each treatment
 Cricket.summary<-ddply(Cricket, c("predator_sex", "eggs_start"), summarise,
@@ -217,16 +218,24 @@ Cricket.plot<-ggplot(Cricket.summary, aes(x=eggs_start, y=mean_eggs_eaten,
   stat_function(fun=Cricket.F.func.holling, colour=female, size=1, linetype="dashed")+
   stat_function(fun=Cricket.M.func.holling, colour=male, size=1, linetype="dotted")+ 
   geom_errorbar(aes(ymin=mean_eggs_eaten-sem, ymax=mean_eggs_eaten+sem, color=predator_sex), 
-               position=pd, color="black", width=3, size=0.75, show.legend=FALSE) +
+               position=pd, color="black", width=5, size=0.5, show.legend=FALSE) +
   xlim(0, 150)+ylim(0,110)+
   xlab("Starting egg density")+ylab("Eggs eaten")+
-  geom_point(position=pd, size=5, show.legend=TRUE)+
+  geom_point(position=pd, size=4, show.legend=TRUE)+
   theme_bw()+ theme(legend.key=element_rect(colour=NA))
   
 
 Cricket.plot
 
+
+#save to pdf
+pdf("Cricket_fig.pdf", height=4, width=5)
+Cricket.plot
+dev.off()
+
+
 ##next up ORIUS!!
+<<<<<<< HEAD
 Orius<-read.csv(file="Orius.csv", header=T)
 
 #step 1- find out the fit
@@ -445,3 +454,6 @@ Katydid.fit<-nls(Pconsumed~
                    data=Katydid)
 
 summary(Katydid.fit)
+=======
+
+>>>>>>> origin/master
