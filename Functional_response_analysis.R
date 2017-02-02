@@ -454,6 +454,17 @@ Katydid.fit<-nls(Pconsumed~
                    data=Katydid)
 
 summary(Katydid.fit)
-=======
+###Error when I run this...Katydid.fit not found
+#Let's refit without the 3rd order polynomial
+Katydid.fit<-nls(Pconsumed~
+                         exp(P0+
+                               P1*eggs_start+
+                               P2*eggs_start^2)/(
+                                 1+exp(P0+
+                                         P1*eggs_start+
+                                         P2*eggs_start^2)), 
+                       start=list(P0=P0, P1=P1, P2=P2),
+                       data=KatydidF)
 
->>>>>>> origin/master
+summary(Katydid.fit)
+##Same error when I run the lower order model...Katydid.fit not found
