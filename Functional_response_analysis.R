@@ -326,12 +326,12 @@ Orius.func.holling<-function(x)  x*a /(1+a*Th*x)
 # The errorbars overlapped, so use position_dodge to move them horizontally
 pd <- position_dodge(3) # move them .05 to the left and right
 
-Orius.plot<-ggplot(Orius.summary, aes(x=eggs_start, y=mean_eggs_eaten, 
-                                      ))+
+Orius.plot<-ggplot(Orius.summary, aes(x=eggs_start, y=mean_eggs_eaten))+ 
+                                      #color=predator_sex, shape=predator_sex))+
   #scale_color_manual(values=c(female, male), name="Predator sex")+
   #scale_shape_manual(values=c(16,17), name="Predator sex")+
   stat_function(fun=Orius.func.holling, size=1, linetype="dashed")+
-  ##stat_function(fun=Cricket.M.func.holling, colour=male, size=1, linetype="dotted")+ 
+  ##stat_function(fun=Orius.func.holling, colour=male, size=1, linetype="dotted")+ 
   geom_errorbar(aes(ymin=mean_eggs_eaten-sem, ymax=mean_eggs_eaten+sem), 
                 position=pd, color="black", width=3, size=0.75, show.legend=FALSE) +
   xlim(0, 150)+ylim(0,6.0)+
@@ -341,3 +341,107 @@ Orius.plot<-ggplot(Orius.summary, aes(x=eggs_start, y=mean_eggs_eaten,
 
 Orius.plot
 
+##Next up Grasshopper!!
+Grasshopper<-read.csv(file="Grasshopper.csv", header=T)
+
+#create subsets as necessary for each species- by sex 
+Grasshopper.F<-Grasshopper[which(Grasshopper$predator_sex=="Female"),]
+Grasshopper.M<-Grasshopper[which(Grasshopper$predator_sex=="Male"),]
+
+#step 1- find out the fit--Juliano
+
+#first chose some starting values for the coefficients we're trying to estimate
+
+P0<-0
+P1<-0
+P2<-0
+P3<-0
+
+Grasshopper.F.fit<-nls(Pconsumed~
+                     exp(P0+
+                           P1*eggs_start+
+                           P2*eggs_start^2+
+                           P3*eggs_start^3)/(
+                             1+exp(P0+
+                                     P1*eggs_start+
+                                     P2*eggs_start^2+
+                                     P3*eggs_start^3)), 
+                   start=list(P0=P0, P1=P1, P2=P2, P3=P3),
+                   data=Grasshopper.F)
+
+summary(Grasshopper.F.fit)
+
+#this results in a non-significant value for P1. Let's refit without the 3rd order
+#polynomial
+Grasshopper.F.fit<-nls(Pconsumed~
+                     exp(P0+
+                           P1*eggs_start+
+                           P2*eggs_start^2)/(
+                             1+exp(P0+
+                                     P1*eggs_start+
+                                     P2*eggs_start^2)), 
+                   start=list(P0=P0, P1=P1, P2=P2),
+                   data=Grasshopper.F)
+
+summary(Grasshopper.F.fit)
+
+##Skip Grasshopper Female for now, not sure how to continue, no sig negative coefficient
+
+#let's look at Grasshopper males
+
+Grasshopper.M.fit<-nls(Pconsumed~
+                     exp(P0+
+                           P1*eggs_start+
+                           P2*eggs_start^2+
+                           P3*eggs_start^3)/(
+                             1+exp(P0+
+                                     P1*eggs_start+
+                                     P2*eggs_start^2+
+                                     P3*eggs_start^3)), 
+                   start=list(P0=P0, P1=P1, P2=P2, P3=P3),
+                   data=Grasshopper.M)
+
+summary(Grasshopper.M.fit)
+
+#once again, a non-significant value for P1, so we'll reduce the complexity of the polynomial
+
+Grasshopper.M.fit<-nls(Pconsumed~
+                     exp(P0+
+                           P1*eggs_start+
+                           P2*eggs_start^2)/(
+                             1+exp(P0+
+                                     P1*eggs_start+
+                                     P2*eggs_start^2)), 
+                   start=list(P0=P0, P1=P1, P2=P2),
+                   data=Grasshopper.M)
+
+summary(Grasshopper.M.fit)
+
+##Removing the higher order changes P1 from negative to positive and neither are significant
+##Instead of moving to step 2 for grasshopper, I will do step 1 for Katydid
+
+###
+#Now to Katydid!
+Katydid<-read.csv(file="Katydid.csv", header=T)
+
+#step 1- find out the fit
+#first chose some starting values for the coefficients we're trying to estimate
+
+P0<-0
+P1<-0
+P2<-0
+P3<-0
+
+Katydid.fit<-nls(Pconsumed~
+                     exp(P0+
+                           P1*eggs_start+
+                           P2*eggs_start^2+
+                           P3*eggs_start^3)/(
+                             1+exp(P0+
+                                     P1*eggs_start+
+                                     P2*eggs_start^2+
+                                     P3*eggs_start^3)), 
+                   start=list(P0=P0, P1=P1, P2=P2, P3=P3),
+                   data=Katydid)
+
+summary(Katydid.fit)
