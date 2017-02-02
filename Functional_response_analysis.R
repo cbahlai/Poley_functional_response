@@ -227,3 +227,117 @@ Cricket.plot<-ggplot(Cricket.summary, aes(x=eggs_start, y=mean_eggs_eaten,
 Cricket.plot
 
 ##next up ORIUS!!
+Orius<-read.csv(file="Orius.csv", header=T)
+
+#step 1- find out the fit
+#first chose some starting values for the coefficients we're trying to estimate
+
+P0<-0
+P1<-0
+P2<-0
+P3<-0
+
+Orius.fit<-nls(Pconsumed~
+                     exp(P0+
+                           P1*eggs_start+
+                           P2*eggs_start^2+
+                           P3*eggs_start^3)/(
+                             1+exp(P0+
+                                     P1*eggs_start+
+                                     P2*eggs_start^2+
+                                     P3*eggs_start^3)), 
+                   start=list(P0=P0, P1=P1, P2=P2, P3=P3),
+                   data=Orius)
+
+summary(Orius.fit)
+
+#once again, a non-significant value for P1, so we'll reduce the complexity of the polynomial
+
+Orius.fit<-nls(Pconsumed~
+                     exp(P0+
+                           P1*eggs_start+
+                           P2*eggs_start^2)/(
+                             1+exp(P0+
+                                     P1*eggs_start+
+                                     P2*eggs_start^2)), 
+                   start=list(P0=P0, P1=P1, P2=P2),
+                   data=Orius)
+
+summary(Orius.fit)
+#significant negative P1! We have a type II
+###
+# step 2- fit the functional response
+
+#Whatever the model, we're trying to find the values for a, attack rate, and Th, handling time
+#so we need starting values
+
+
+a<-1
+Th<-0
+
+#fit the random predator equation
+Orius.random<-nls(eggs_eaten~eggs_start*(1-exp(a*(Th*eggs_eaten-1))), 
+                      start=list(a=a,Th=Th),
+                      data=Orius)
+
+summary(Orius.random)
+AIC(Orius.random)
+#fit the Holling's disc equation
+
+Orius.holling<-nls(eggs_eaten~eggs_start*a /(1+a*Th*eggs_start), 
+                       start=list(a=a,Th=Th),
+                       data=Orius)
+
+summary(Orius.holling)
+AIC(Orius.holling)
+
+#and what we find here is the Random predator equation has a better fit (ie it has a smaller AIC)
+#but it doesn't produce a significant coefficient
+
+#but we'd like an estimate of the asymptote anyway, so let's use the Holling model
+
+Orius.asymptote<-1/(summary(Orius.holling)$coefficients[2,1])
+Orius.asymptote
+#propagate the error
+Orius.asymptote.se<-Orius.asymptote^2*summary(Orius.holling)$coefficients[2,2]
+Orius.asymptote.se
+
+#for each taxon, we'll want to have M and F data plotted in the same chart. This means we'll
+#need to operate on the full dataset when creating the plot. We want to do this in ggplot2
+# and we'll need to create summary data to achieve this
+
+library(plyr)
+library(ggplot2)
+
+#choose colors for each sex
+female<-"green"
+male<-"orange"
+
+#calculate mean and SEM for each treatment
+Orius.summary<-ddply(Orius, c("eggs_start"), summarise,
+                       mean_eggs_eaten=mean(eggs_eaten), n=length(eggs_eaten),
+                       sem=sd(eggs_eaten)/sqrt(n))
+
+#create objects describing functions for plotting our fits
+a<-summary(Orius.holling)$coefficients[1,1]
+Th<-summary(Orius.holling)$coefficients[2,1]
+Orius.func.holling<-function(x)  x*a /(1+a*Th*x)
+
+# The errorbars overlapped, so use position_dodge to move them horizontally
+pd <- position_dodge(3) # move them .05 to the left and right
+
+Orius.plot<-ggplot(Orius.summary, aes(x=eggs_start, y=mean_eggs_eaten, 
+                                      ))+
+  #scale_color_manual(values=c(female, male), name="Predator sex")+
+  #scale_shape_manual(values=c(16,17), name="Predator sex")+
+  stat_function(fun=Orius.func.holling, size=1, linetype="dashed")+
+  ##stat_function(fun=Cricket.M.func.holling, colour=male, size=1, linetype="dotted")+ 
+  geom_errorbar(aes(ymin=mean_eggs_eaten-sem, ymax=mean_eggs_eaten+sem), 
+                position=pd, color="black", width=3, size=0.75, show.legend=FALSE) +
+  xlim(0, 150)+ylim(0,6.0)+
+  xlab("Starting egg density")+ylab("Eggs eaten")+
+  geom_point(position=pd, size=5, show.legend=TRUE)+
+  theme_bw()+ theme(legend.key=element_rect(colour=NA))
+
+Orius.plot
+
