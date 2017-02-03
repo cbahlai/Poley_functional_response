@@ -209,7 +209,7 @@ Thm<-summary(Cricket.M.holling)$coefficients[2,1]
 Cricket.M.func.holling<-function(x)  x*am /(1+am*Thm*x)
 
 # The errorbars overlapped, so use position_dodge to move them horizontally
-pd <- position_dodge(3) # move them .05 to the left and right
+pd <- position_dodge(3) # move them 3 units to the left and right
 
 Cricket.plot<-ggplot(Cricket.summary, aes(x=eggs_start, y=mean_eggs_eaten, 
                                           color=predator_sex, shape=predator_sex))+
@@ -235,7 +235,7 @@ dev.off()
 
 
 ##next up ORIUS!!
-<<<<<<< HEAD
+
 Orius<-read.csv(file="Orius.csv", header=T)
 
 #step 1- find out the fit
@@ -273,7 +273,12 @@ Orius.fit<-nls(Pconsumed~
                    data=Orius)
 
 summary(Orius.fit)
-#significant negative P1! We have a type II
+#We have a negative, but non-significant value for P1- this suggests there may be a type II functional response
+# but data are too variable or do not capture a sufficient range of the relationship to see this clearly.
+
+#we can go on and attempt t fit Holling and Random predator but this probably won't yield a significant result
+
+
 ###
 # step 2- fit the functional response
 
@@ -300,46 +305,42 @@ Orius.holling<-nls(eggs_eaten~eggs_start*a /(1+a*Th*eggs_start),
 summary(Orius.holling)
 AIC(Orius.holling)
 
-#and what we find here is the Random predator equation has a better fit (ie it has a smaller AIC)
-#but it doesn't produce a significant coefficient
+#and what we find here is the Random predator equation has a better fit (ie it has a smaller AIC) again
+#but it doesn't produce a significant coefficient, and Holling's disc has no significant parameters
 
-#but we'd like an estimate of the asymptote anyway, so let's use the Holling model
+# in fact, the fit is rough enough that we're not going to get a viable Th or maximum voracity
 
-Orius.asymptote<-1/(summary(Orius.holling)$coefficients[2,1])
-Orius.asymptote
-#propagate the error
-Orius.asymptote.se<-Orius.asymptote^2*summary(Orius.holling)$coefficients[2,2]
-Orius.asymptote.se
+#so for this, I think a linear response is the best we can do
 
-#for each taxon, we'll want to have M and F data plotted in the same chart. This means we'll
-#need to operate on the full dataset when creating the plot. We want to do this in ggplot2
-# and we'll need to create summary data to achieve this
+#let's fit a linear model, for a type I response
 
-library(plyr)
-library(ggplot2)
+orius.linear<-lm(eggs_eaten~eggs_start, data=Orius)
 
-#choose colors for each sex
-female<-"green"
-male<-"orange"
+summary(orius.linear)
+AIC(orius.linear)
+
+#the AIC also indicates that this is not a great model, but at least there's a significant slope
+#so how I'd interpret this is there is density dependance in the response, but it can't be defined
+#because either the data are too variable, or an insufficient rance of starting values are covered
+
 
 #calculate mean and SEM for each treatment
 Orius.summary<-ddply(Orius, c("eggs_start"), summarise,
                        mean_eggs_eaten=mean(eggs_eaten), n=length(eggs_eaten),
                        sem=sd(eggs_eaten)/sqrt(n))
 
-#create objects describing functions for plotting our fits
-a<-summary(Orius.holling)$coefficients[1,1]
-Th<-summary(Orius.holling)$coefficients[2,1]
-Orius.func.holling<-function(x)  x*a /(1+a*Th*x)
+#create objects describing functions for plotting our fit- we'll use the linear one because it's the simplest 
+#model, and there's no real support for a curvilinear model
+
+b<-summary(orius.linear)$coefficients[1,1]
+m<-summary(orius.linear)$coefficients[2,1]
+Orius.func.linear<-function(x)  x*m+b #y=mx+b, the linear equation general formula
 
 # The errorbars overlapped, so use position_dodge to move them horizontally
 pd <- position_dodge(3) # move them .05 to the left and right
 
 Orius.plot<-ggplot(Orius.summary, aes(x=eggs_start, y=mean_eggs_eaten))+ 
-                                      #color=predator_sex, shape=predator_sex))+
-  #scale_color_manual(values=c(female, male), name="Predator sex")+
-  #scale_shape_manual(values=c(16,17), name="Predator sex")+
-  stat_function(fun=Orius.func.holling, size=1, linetype="dashed")+
+  stat_function(fun=Orius.func.linear, size=1, linetype="dashed")+
   ##stat_function(fun=Orius.func.holling, colour=male, size=1, linetype="dotted")+ 
   geom_errorbar(aes(ymin=mean_eggs_eaten-sem, ymax=mean_eggs_eaten+sem), 
                 position=pd, color="black", width=3, size=0.75, show.legend=FALSE) +
@@ -464,7 +465,7 @@ Katydid.fit<-nls(Pconsumed~
                                          P1*eggs_start+
                                          P2*eggs_start^2)), 
                        start=list(P0=P0, P1=P1, P2=P2),
-                       data=KatydidF)
+                       data=Katydid)
 
 summary(Katydid.fit)
 ##Same error when I run the lower order model...Katydid.fit not found
