@@ -276,7 +276,7 @@ summary(Orius.fit)
 #We have a negative, but non-significant value for P1- this suggests there may be a type II functional response
 # but data are too variable or do not capture a sufficient range of the relationship to see this clearly.
 
-#we can go on and attempt t fit Holling and Random predator but this probably won't yield a significant result
+#we can go on and attempt to fit Holling and Random predator but this probably won't yield a significant result
 
 
 ###
@@ -541,12 +541,6 @@ pdf("Grasshopper_fig.pdf", height=4, width=5)
 Grasshopper.plot
 dev.off()
 
-
-
-
-
-
-##Instead of moving to step 2 for grasshopper, I will do step 1 for Katydid
 
 ###
 #Now to Katydid!
