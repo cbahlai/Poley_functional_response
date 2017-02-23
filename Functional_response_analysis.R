@@ -1,15 +1,16 @@
 # Functional response of four predator species to varied densities of stink bug eggs
 
+
 #bring data in
 Cricket<-read.csv(file="Cricket.csv", header=T)
 Orius<-read.csv(file="Orius.csv", header=T)
 Grasshopper<-read.csv(file="Grasshopper.csv", header=T)
 Katydid<-read.csv(file="Katydid.csv", header=T)
 
+
 #create subsets as necessary for each species- by sex 
 Cricket.F<-Cricket[which(Cricket$predator_sex=="Female"),]
 Cricket.M<-Cricket[which(Cricket$predator_sex=="Male"),]
-
 
 #we're going to use the approach of a two stage analysis. Basically, step one is determine
 #what the response is, then step 2 is fit the data to the appropriate response and build a plot
