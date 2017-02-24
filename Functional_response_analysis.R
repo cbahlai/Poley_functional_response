@@ -3,14 +3,19 @@
 
 #bring data in
 Cricket<-read.csv(file="Cricket.csv", header=T)
+cricket_update<-read.csv(file="Cricket.update.csv", header=T)
 Orius<-read.csv(file="Orius.csv", header=T)
 Grasshopper<-read.csv(file="Grasshopper.csv", header=T)
+Grasshopper_update<-read.csv(file="grasshopper.update.csv", header=T)
 Katydid<-read.csv(file="Katydid.csv", header=T)
 
 
 #create subsets as necessary for each species- by sex 
 Cricket.F<-Cricket[which(Cricket$predator_sex=="Female"),]
 Cricket.M<-Cricket[which(Cricket$predator_sex=="Male"),]
+#Subset with updated data
+Cricket.Female<-cricket_update[which(cricket_update$predator_sex=="Female"),]
+Cricket.Male<-cricket_update[which(cricket_update$predator_sex=="Male"),]
 
 #we're going to use the approach of a two stage analysis. Basically, step one is determine
 #what the response is, then step 2 is fit the data to the appropriate response and build a plot
@@ -233,8 +238,44 @@ Cricket.plot
 pdf("Cricket_fig.pdf", height=4, width=5)
 Cricket.plot
 dev.off()
+######################################################################
+##Functional response models complete, now some other tests
+#First, Density-dependence testing of observed attack rate and handling time
+#Cricket Females - handling time. I am unsure if I should use the TOTAL handling time (the total
+#observed handling time in a 24h period) or the AVERAGE (the observed handling time for each 
+#egg mass in an arena per 24h averaged together). The attack rate has been calculated using both
+#the TOTAl handling time (attack_total) and the average handling time (attack_avg)
 
 
+#step 1, is there a correlation?
+cor(eggs_start, handling_total)
+#ERROR - either object not found or "NA"
+#step 2, Spearman's rank test (non-parametric)
+cor.test(eggs_start,handling_total,method="spearman")
+#same ERRORS. I don't understand why I need to make these variables into objects...
+
+#step 3, after density-dependence of handling time, do the same for calculated attack rate
+cor(eggs_start, attack_total)
+cor.test(eggs_start,attack_total,method="spearman")
+
+#step 4, Create figures for attack rate and handling time
+
+#step 5, compare estimated handling time and attack rates to model outputs. Not sure how to do this-
+#model gives one estimate but I have an estimate for each treatment
+
+#step 6, detect differences in predation rate using ANOVA and Multiple comparions - Tukey
+Cricket.F.aov<-aov(Pconsumed, as.factor(treatment))
+summary(Cricket.F.aov)
+TukeyHSD(Cricket.F.aov)
+
+Cricket.M.aov<-(Pconsumed, as.factor(treatment))
+summary(Cricket.M.aov)
+TukeyHSD(Cricket.M.aov)
+
+#ANOVA and Tukey code is working, but I have not checked assumptions and need to
+
+
+######################################################################
 ##next up ORIUS!!
 
 Orius<-read.csv(file="Orius.csv", header=T)
@@ -365,6 +406,9 @@ Grasshopper<-read.csv(file="Grasshopper.csv", header=T)
 #create subsets as necessary for each species- by sex 
 Grasshopper.F<-Grasshopper[which(Grasshopper$predator_sex=="Female"),]
 Grasshopper.M<-Grasshopper[which(Grasshopper$predator_sex=="Male"),]
+#Subset with updated data
+Grasshopper.Female<-grasshopper_update[which(grasshopper_update$predator_sex=="Female"),]
+Grasshopper.Male<-grasshopper_update[which(grasshopper_update$predator_sex=="Male"),]
 
 #step 1- find out the fit--Juliano
 
