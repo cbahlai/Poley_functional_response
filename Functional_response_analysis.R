@@ -275,6 +275,10 @@ rcorr(as.matrix(cricket.culled), type="spearman")
 cor(eggs_start, attack_total)
 cor.test(eggs_start,attack_total,method="spearman")
 
+#now we do t-tests to determine if the observed handling time is different from the once computed by the model
+t.test(cricket.culled$handling_avg, mu=Th)
+
+
 #step 4, Create figures for attack rate and handling time
 
 #step 5, compare estimated handling time and attack rates to model outputs. Not sure how to do this-
