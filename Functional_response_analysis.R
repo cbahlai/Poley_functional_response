@@ -246,12 +246,29 @@ dev.off()
 #egg mass in an arena per 24h averaged together). The attack rate has been calculated using both
 #the TOTAl handling time (attack_total) and the average handling time (attack_avg)
 
+#this analysis is pointing to data in another frame, so we have to bring it into the R environment
+cricket.handling<-read.csv(file="cricket.update.csv", header=T)
 
-#step 1, is there a correlation?
-cor(eggs_start, handling_total)
-#ERROR - either object not found or "NA"
+#step 1, is there a correlation? 
+#the command cor() takes a data frame as input, so if we want to operate on specific columns
+#we have to convert them to their own frame. since you're doing this with several variables, it makes sense 
+#to manipulate the data frame to cull off the categotical/text values and then just do the correlation analysis 
+#on all of them at once, pull out the relevant info
+cricket.culled<-cricket.handling[5:12] # select columns 5-12, put them in a new frame
+#also, because correlation analysis can't handle missing data, we need to cut out all the observations with NAs
+cricket.culled<-cricket.culled[complete.cases(cricket.culled),]
+
+#I suggest using Hmisc if you want correlations and significance levels for a whole matrix. 
+library(Hmisc)
+
+rcorr(as.matrix(cricket.culled), type="pearson")
+
 #step 2, Spearman's rank test (non-parametric)
-cor.test(eggs_start,handling_total,method="spearman")
+rcorr(as.matrix(cricket.culled), type="spearman")
+
+# just to warn you, correlation analysis is kind of over-sensitive. for examle, a 33% negative correlation between values
+# is showing up as highly sigificant- so interpret this with caution.
+
 #same ERRORS. I don't understand why I need to make these variables into objects...
 
 #step 3, after density-dependence of handling time, do the same for calculated attack rate
