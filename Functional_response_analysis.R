@@ -226,7 +226,7 @@ Cricket.plot<-ggplot(Cricket.summary, aes(x=eggs_start, y=mean_eggs_eaten,
   geom_errorbar(aes(ymin=mean_eggs_eaten-sem, ymax=mean_eggs_eaten+sem, color=predator_sex), 
                position=pd, color="black", width=5, size=0.5, show.legend=FALSE) +
   xlim(0, 150)+ylim(0,110)+
-  xlab("initial egg density")+ylab("mean number of eggs eaten (±SE)")+
+  xlab("Initial egg density")+ylab("Mean number of eggs eaten (±SE)")+
   geom_point(position=pd, size=4, show.legend=TRUE)+
   theme_bw()+ theme(legend.key=element_rect(colour=NA))
   
@@ -289,7 +289,7 @@ Cricket.F.aov<-aov(Pconsumed, as.factor(treatment))
 summary(Cricket.F.aov)
 TukeyHSD(Cricket.F.aov)
 
-Cricket.M.aov<-(Pconsumed, as.factor(treatment))
+Cricket.M.aov<-aov(Pconsumed, as.factor(treatment))
 summary(Cricket.M.aov)
 TukeyHSD(Cricket.M.aov)
 
@@ -409,7 +409,7 @@ Orius.plot<-ggplot(Orius.summary, aes(x=eggs_start, y=mean_eggs_eaten))+
   geom_errorbar(aes(ymin=mean_eggs_eaten-sem, ymax=mean_eggs_eaten+sem), 
                 position=pd, color="black", width=3, size=0.75, show.legend=FALSE) +
   xlim(0, 150)+ylim(0,6.0)+
-  xlab("initial egg density")+ylab("mean number of eggs eaten (±SE)")+
+  xlab("Initial egg density")+ylab("Mean number of eggs eaten (±SE)")+
   geom_point(position=pd, size=5, show.legend=TRUE)+
   theme_bw()+ theme(legend.key=element_rect(colour=NA))
 
@@ -594,7 +594,7 @@ Grasshopper.plot<-ggplot(Grasshopper.summary, aes(x=eggs_start, y=mean_eggs_eate
   geom_errorbar(aes(ymin=mean_eggs_eaten-sem, ymax=mean_eggs_eaten+sem, color=predator_sex), 
                 position=pd, color="black", width=5, size=0.5, show.legend=FALSE) +
   xlim(0, 150)+ylim(0,60)+
-  xlab("initial egg density")+ylab("mean number of eggs eaten (±SE)")+
+  xlab("Initial egg density")+ylab("Mean number of eggs eaten (±SE)")+
   geom_point(position=pd, size=4, show.legend=TRUE)+
   theme_bw()+ theme(legend.key=element_rect(colour=NA))
 
@@ -719,7 +719,7 @@ Katydid.plot<-ggplot(Katydid.summary, aes(x=eggs_start, y=mean_eggs_eaten))+
   geom_errorbar(aes(ymin=mean_eggs_eaten-sem, ymax=mean_eggs_eaten+sem), 
                 position=pd, color="black", width=3, size=0.75, show.legend=FALSE) +
   xlim(0, 150)+ylim(0,13)+
-  xlab("initial egg density")+ylab("mean number of eggs eaten (±SE)")+
+  xlab("Initial egg density")+ylab("Mean number of eggs eaten (±SE)")+
   geom_point(position=pd, size=5, show.legend=TRUE)+
   theme_bw()+ theme(legend.key=element_rect(colour=NA))
 
